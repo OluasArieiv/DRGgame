@@ -64,7 +64,6 @@ twm_play () {
    if echo "$RUN"|grep -q -E '[-]cl'; then
     printf "Running in coliseum mode: $RUN\n"
     sleep 5s
-    arena_duel
     coliseum_start
     messages_info
    fi
