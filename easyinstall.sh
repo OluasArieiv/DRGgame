@@ -9,7 +9,7 @@
 mkdir -p ~/twm
 
 if [ ! -e "~/twm/info.sh" ]; then
- curl https://raw.githubusercontent.com/sharesourcecode/TitansWarMacro/master/info.lib -s -L >$HOME/twm/info.lib
+ curl https://raw.githubusercontent.com/OluasArieiv/DRGgame/master/info.lib -s -L >$HOME/twm/info.lib
 # chmod +x ~/twm/info.lib
  sleep 1s
 fi
@@ -28,7 +28,7 @@ else
  version="$@"
 fi
 
-SERVER="https://raw.githubusercontent.com/sharesourcecode/TitansWarMacro/$version/"
+SERVER="https://raw.githubusercontent.com/OluasArieiv/DRGgame/$version/"
 remote_count=$(curl ${SERVER}easyinstall.sh -s -L|wc -c)
 if [ -e "easyinstall.sh" ]; then
  local_count=$(wc -c <"easyinstall.sh")
@@ -81,7 +81,7 @@ if uname|grep -q -i "cygwin"; then
   :
  else
   #/cygwin repository
-  curl -s -L -O "http://raw.githubusercontent.com/sharesourcecode/apt-cyg/master/apt-cyg" &>/dev/null
+  curl -s -L -O "http://raw.githubusercontent.com/OluasArieiv/apt-cyg/master/apt-cyg" &>/dev/null
   install apt-cyg /bin
  fi
 
