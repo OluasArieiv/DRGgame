@@ -43,7 +43,7 @@ cd ~/twm
 SCRIPTS="easyinstall.sh info.sh"
 rm -rf "$HOME/$SCRIPTS" $SCRIPTS 2>/dev/null
 
-SERVER="https://raw.githubusercontent.com/sharesourcecode/TitansWarMacro/${version}/"
+SERVER="https://raw.githubusercontent.com/sharesourcecode/DRGgame/${version}/"
 
 NUM_SCRIPTS=$(echo $SCRIPTS|wc -w)
 LEN=0
