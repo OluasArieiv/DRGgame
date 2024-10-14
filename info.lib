@@ -28,8 +28,8 @@ script_slogan () {
  t=339
  w=59
  m=89
- author="author:\nueliton@disroot.org 2019 - 2023"
- collaborator="collaborator:\n          @_hviegas"
+ author="author:\mipica 2019 - 2023"
+ collaborator="collaborator:\n          hahahah"
  for i in $colors; do
   clear
   t=$((t - 27))
