@@ -70,7 +70,7 @@ func_sleep () {
      coliseum_start
      reset
      clear
-     i=60
+     i=10
 #     printf "\n No battles now, waiting 1m\n"
      func_cat
 #     sleep 55s
