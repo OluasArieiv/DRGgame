@@ -45,7 +45,7 @@ func_cat () {
  list () {
   printf "\n"
   grep -o -E '[[:alpha:]]+?[_]?[[:alpha:]]+?[ ]?\() \{' ~/TitansWarMacro-master/*.lib|awk -F\: '{ print $2 }'|awk -F\( '{ print $1 }'
-  read -t 9
+  read -t 2
  }
 
  while  true; do
