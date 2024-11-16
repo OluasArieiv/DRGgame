@@ -8,8 +8,8 @@ altars_fight () {
  apply_event
 
  #/enterFight
- local LA=4 # interval attack
- echo "48" >HPER # % to heal
+ local LA=5 # interval attack
+ echo "30" >HPER # % to heal
  echo "15" >RPER # % to random
  cf_access () {
   grep -o -E '(/[a-z]+/[a-z]{0,4}at[a-z]{0,3}k/[?]r[=][0-9]+)' $TMP/src.html | sed -n 1p >ATK 2> /dev/null
