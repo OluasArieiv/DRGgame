@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# ========= GERENCIADOR DE MÚLTIPLAS CONTAS (COM SUPORTE A GITHUB SYNC) =========
+# Copyright (c) 2019-2024 Ueliton Alves Dos Santos
+# Licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+
+# ========= GERENCIADOR DE MÚLTIPLAS CONTAS (CORRIGIDO) =========
 if [ "$MULTICONTA_ATIVO" != "1" ]; then
     while true; do
         clear
@@ -25,8 +28,10 @@ if [ "$MULTICONTA_ATIVO" != "1" ]; then
                     DIR_CONTA="$HOME/twm_conta$i"
                     mkdir -p "$DIR_CONTA"
                     
-                    # Clona a base original mantendo a sincronização com o GitHub ativa
-                    cp -r $HOME/twm/* "$DIR_CONTA/" 2>/dev/null
+                    # Correção: cp -a copia tudo, incluindo pastas ocultas (.1, .6, etc.)
+                    cp -a "$HOME/twm/." "$DIR_CONTA/" 2>/dev/null
+                    
+                    # Ajusta os caminhos internos para a nova pasta isolada
                     find "$DIR_CONTA" -type f -exec sed -i "s|$HOME/twm|$DIR_CONTA|g" {} + 2>/dev/null
                     find "$DIR_CONTA" -type f -exec sed -i "s|~/twm|$DIR_CONTA|g" {} + 2>/dev/null
                     
@@ -56,11 +61,10 @@ if [ "$MULTICONTA_ATIVO" != "1" ]; then
                         echo "$SV" > "$DIR_CONTA/ur_file"
                         
                         read -p "Usuário da Conta $i: " USERNAME
-                        # Removido o parâmetro -s para a senha aparecer visível
                         read -p "Senha da Conta $i (visível): " PASSWORD
                         echo ""
                         
-                        # Cria o diretório do servidor correspondente e salva as credenciais criptografadas[span_1](start_span)[span_1](end_span)
+                        # Cria o diretório oculto do servidor e salva as credenciais[span_1](start_span)[span_1](end_span)
                         mkdir -p "$DIR_CONTA/.$SV"
                         echo "login=$USERNAME&pass=$PASSWORD" | base64 -w 0 > "$DIR_CONTA/.$SV/cript_file"
                         chmod 600 "$DIR_CONTA/.$SV/cript_file"
