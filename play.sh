@@ -3,7 +3,6 @@
 # Copyright (c) 2019-2024 Ueliton Alves Dos Santos
 # Licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
 
-# ========= GERENCIADOR DE MÚLTIPLAS CONTAS (CORRIGIDO) =========
 if [ "$MULTICONTA_ATIVO" != "1" ]; then
     while true; do
         clear
@@ -28,14 +27,11 @@ if [ "$MULTICONTA_ATIVO" != "1" ]; then
                     DIR_CONTA="$HOME/twm_conta$i"
                     mkdir -p "$DIR_CONTA"
                     
-                    # Correção: cp -a copia tudo, incluindo pastas ocultas (.1, .6, etc.)
                     cp -a "$HOME/twm/." "$DIR_CONTA/" 2>/dev/null
                     
-                    # Ajusta os caminhos internos para a nova pasta isolada
                     find "$DIR_CONTA" -type f -exec sed -i "s|$HOME/twm|$DIR_CONTA|g" {} + 2>/dev/null
                     find "$DIR_CONTA" -type f -exec sed -i "s|~/twm|$DIR_CONTA|g" {} + 2>/dev/null
                     
-                    # Verifica se a conta já possui dados salvos
                     SALVO=$(find "$DIR_CONTA" -name "cript_file" 2>/dev/null | wc -l)
                     if [ "$SALVO" -eq 0 ]; then
                         echo "========================================"
@@ -57,14 +53,12 @@ if [ "$MULTICONTA_ATIVO" != "1" ]; then
                         
                         if [ -z "$SV" ]; then SV="6"; fi
                         
-                        # Salva o servidor no arquivo ur_file exclusivo da conta[span_0](start_span)[span_0](end_span)
                         echo "$SV" > "$DIR_CONTA/ur_file"
                         
                         read -p "Usuário da Conta $i: " USERNAME
                         read -p "Senha da Conta $i (visível): " PASSWORD
                         echo ""
                         
-                        # Cria o diretório oculto do servidor e salva as credenciais[span_1](start_span)[span_1](end_span)
                         mkdir -p "$DIR_CONTA/.$SV"
                         echo "login=$USERNAME&pass=$PASSWORD" | base64 -w 0 > "$DIR_CONTA/.$SV/cript_file"
                         chmod 600 "$DIR_CONTA/.$SV/cript_file"
@@ -94,7 +88,7 @@ if [ "$MULTICONTA_ATIVO" != "1" ]; then
                 
                 for i in $(seq 1 $NUM_PASTAS); do
                     DIR_CONTA="$HOME/twm_conta$i"
-                    SV_ATUAL=$(cat "$DIR_CONTA/ur_file" 2>/dev/null || echo "6")[span_2](start_span)[span_2](end_span)
+                    SV_ATUAL=$(cat "$DIR_CONTA/ur_file" 2>/dev/null || echo "6")
                     
                     STATUS=$(tail -n 10 "$DIR_CONTA/log_conta$i.txt" 2>/dev/null | grep -v "^$" | tail -n 1)
                     STATUS_LIMPO=$(echo "$STATUS" | sed -r 's/\x1B\[[0-9;]*[a-zA-Z]//g' | cut -c 1-40)
@@ -130,11 +124,10 @@ if [ "$MULTICONTA_ATIVO" != "1" ]; then
         fi
     done
 fi
-# ========= FIM DA INTERFACE MULTICONTAS =========
 
 (
  RUN=$1
- echo "$RUN" >$HOME/twm/runmode_file[span_3](start_span)[span_3](end_span)
+ echo "$RUN" >$HOME/twm/runmode_file
  while true; do
   pidf=$(jobs -l | awk '/sh.*twm\/twm\.lib/ { if (NR == 1) print $2 }')
   until [ -z "${pidf}" ]; do
@@ -144,13 +137,13 @@ fi
   done
   run_mode () {
    if echo "$RUN"|grep -q -E '[-]cl'; then
-    chmod +x $HOME/twm/twm.sh ; $HOME/twm/twm.sh[span_4](start_span)[span_4](end_span)
+    chmod +x $HOME/twm/twm.sh ; $HOME/twm/twm.sh
    elif echo "$RUN"|grep -q -E '[-]cv'; then
-    chmod +x $HOME/twm/twm.sh ; $HOME/twm/twm.sh -cv[span_5](start_span)[span_5](end_span)
+    chmod +x $HOME/twm/twm.sh ; $HOME/twm/twm.sh -cv
    elif echo "$RUN"|grep -q -E '[-]boot'; then
-    echo '-boot' >$HOME/twm/runmode_file ; chmod +x $HOME/twm/twm.sh ; $HOME/twm/twm.sh -boot[span_6](start_span)[span_6](end_span)
+    echo '-boot' >$HOME/twm/runmode_file ; chmod +x $HOME/twm/twm.sh ; $HOME/twm/twm.sh -boot
    else
-    echo '-boot' >$HOME/twm/runmode_file ; chmod +x $HOME/twm/twm.sh ; $HOME/twm/twm.sh -boot[span_7](start_span)[span_7](end_span)
+    echo '-boot' >$HOME/twm/runmode_file ; chmod +x $HOME/twm/twm.sh ; $HOME/twm/twm.sh -boot
    fi
   }
   run_mode
