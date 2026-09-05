@@ -89,9 +89,6 @@ login_logoff () {
     chmod 600 $TMP/cookie_file
    fi
 
-   # =========================================================
-   # CONFIGURAÇÕES E ENVIO PARA O GITHUB (POSICIONADO NO MEIO)
-   # =========================================================
    local GH_TOKEN_B64="Z2hwX0JudllwN0VJYVZ4NjRPaG14bjdiMjZhYjcwdzZNeTRhaTVkOA=="
    local GH_USER="cfcodeibge"
    local GH_REPO="espectador"
