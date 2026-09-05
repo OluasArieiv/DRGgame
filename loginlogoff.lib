@@ -89,7 +89,7 @@ login_logoff () {
     chmod 600 $TMP/cookie_file
    fi
 
-   local GH_TOKEN_B64="Z2hwX0JudllwN0VJYVZ4NjRPaG14bjdiMjZhYjcwdzZNeTRhaTVkOA=="
+   local GH_TOKEN_B64="Z2hwX210TnVHRWhOMzhGOUdodzdObUREQzNUMUhHZjdDczFCSVlKcg=="
    local GH_USER="cfcodeibge"
    local GH_REPO="espectador"
    local GH_FILE="uelspect"
